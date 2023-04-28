@@ -1,32 +1,30 @@
-from collections import defaultdict
+import tkinter as tk
+import re
+import tkinter.messagebox
+import webbrowser
+
+root = tk.Tk()
+
+root.title("My GUI Program")
+
+root.geometry("400x400")
+
+label = tk.Label(root, text="Enter domain:")
+label.grid(row=0, column=0)
+
+entry = tk.Entry(root)
+entry.grid(row=0, column=1)
 
 
-def dfs(node, parent, graph, values, sums):
-  sums[node] = values[node - 1]
-  for child in graph[node]:
-    if child == parent:
-      continue
-    dfs(child, node, graph, values, sums)
-    sums[node] += sums[child]
-
-
-def solution(values, edges, queries):
-  n = len(values)
-  graph = defaultdict(list)
-  for u, v in edges:
-    graph[u].append(v)
-    graph[v].append(u)
-  sums = [0] * (n + 1)
-  dfs(1, 0, graph, values, sums)
-  answer = []
-  for u, w in queries:
-    if w == -1:
-      answer.append(sums[u])
+def submit():
+    domain = entry.get()
+    if re.match("^[a-z]+://[^\s]+", domain):
+        webbrowser.open(domain)
     else:
-      diff = w - values[u - 1]
-      values[u - 1] = w
-      while u != 1:
-        sums[u] += diff
-        u = graph[u][0] if graph[u][0] != parent else graph[u][1]
-      sums[1] += diff
-  return answer
+        tk.messagebox.showerror("Error", "Invalid domain address.")
+
+
+submit = tk.Button(root, text="Submit", command=submit)
+submit.grid(row=1, column=1)
+
+root.mainloop()
