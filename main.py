@@ -1,46 +1,24 @@
-from collections import defaultdict, deque
-import heapq
-
-
 def solution(edges, target):
+  nodes = list(set([node for edge in edges for node in edge] + target))
+  tree = {node: [] for node in nodes}
+  answer = []
 
-  graph = defaultdict(list)
   for u, v in edges:
-    graph[u].append(v)
+    tree[u].append(v)
+    tree[u].sort()
 
-  child = defaultdict(list)
-  for u in graph:
-    child[u] = sorted(graph[u])
+  last_child = {node: 0 for node in nodes}
 
-  curr_child = {node: 0 for node in child}
-
-  result = []
-
-  target_leaves = [(target[i], i + 1) for i in range(len(target))
-                   if target[i] != 0]
-
-  heapq.heapify(target_leaves)
-
-  while target_leaves:
-    num, leaf = heapq.heappop(target_leaves)
-    if target[leaf - 1] == 0:
+  for time, node in enumerate(target):
+    if node == 0:
       continue
 
-    path = []
-    node = 1
-    while node != leaf:
-      path.append(node)
+    children = tree[node]
 
-      if not child[node]:
-        break
-      node = child[node][curr_child[node]]
-
-    if node != leaf:
+    if last_child[node] >= len(children):
       return [-1]
+    else:
+      answer.append(children[last_child[node]])
+      last_child[node] += 1
 
-    result.append(num)
-    target[leaf - 1] = 0
-
-    for node in path:
-      curr_child[node] = (curr_child[node] + 1) % len(child[node])
-  return result if not any(target) else [-1]
+  return answer
