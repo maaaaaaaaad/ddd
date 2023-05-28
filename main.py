@@ -1,24 +1,21 @@
 def solution(edges, target):
-  nodes = list(set([node for edge in edges for node in edge] + target))
-  tree = {node: [] for node in nodes}
+  from collections import defaultdict
+  nodes = defaultdict(list)
+  for u, v in edges:
+    nodes[u].append(v)
+  nodes = dict(nodes)
+
+  visit_order = {key: 0 for key in nodes.keys()}
+
   answer = []
 
-  for u, v in edges:
-    tree[u].append(v)
-    tree[u].sort()
-
-  last_child = {node: 0 for node in nodes}
-
-  for time, node in enumerate(target):
+  for node in target:
     if node == 0:
       continue
-
-    children = tree[node]
-
-    if last_child[node] >= len(children):
+    if node not in nodes or visit_order[node] >= len(nodes[node]):
       return [-1]
     else:
-      answer.append(children[last_child[node]])
-      last_child[node] += 1
+      answer.append(nodes[node][visit_order[node]])
+      visit_order[node] += 1
 
   return answer
